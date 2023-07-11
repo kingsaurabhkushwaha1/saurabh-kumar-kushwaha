@@ -36,6 +36,20 @@ $(document).ready(function() {
         backSpeed: 60,
         loop: true
     });
+    var typed = new Typed(".typing-3", {
+        strings: ["KENT RO System Ltd",],
+        typeSpeed: 100,
+        
+        backSpeed: 60,
+        loop: true
+    });
+    var typed = new Typed(".typing-4", {
+        strings: ["Product Developer", "Software Developer",],
+        typeSpeed: 100,
+        
+        backSpeed: 60,
+        loop: true
+    });
     $('.carousel').owlCarousel({
         margin: 20,
         loop: true,

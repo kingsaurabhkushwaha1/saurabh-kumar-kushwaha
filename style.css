@@ -183,9 +183,9 @@ section .title::after {
 
 .home {
     /* display: flex; */
-     background: url(indiagate.webp) no-repeat center; 
+     background: url(istockphoto-1328842178-1024x1024.jpg) no-repeat center; 
     height: 100vh;
-    /*color: #fff; 
+    /*color: #fff;
     min-height: 500px;
     background-size: cover; */
     /* background-attachment: fixed; */
@@ -210,7 +210,7 @@ section .title::after {
     font-size: 75px;
     font-weight: 600;
     margin-left: -3px;
-    color: blue;
+    color: rgb(250, 12, 127);
 }
 
 .home .home-content .text-3 {
@@ -258,7 +258,9 @@ section .title::after {
 }
 
 .about .about-content .right {
-    width: 55%
+    width:50%;
+    margin:0%;
+    
 }
 
 .about .about-content .right .text {
@@ -772,4 +774,46 @@ footer span a:hover {
 .home .home-content .text-3 span{
     color: crimson;
     font-weight: 500;
+}
+
+/* extra_section */
+.card {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    max-width: 300px;
+    margin:auto;
+    text-align:center;
+  }
+  
+  .title {
+    color: grey;
+    font-size: 18px;
+  }
+  
+  button {
+    border: none;
+    outline: 0;
+    display: inline-block;
+    padding: 8px;
+    color: white;
+    background-color: #000;
+    text-align: center;
+    cursor: pointer;
+    width: 35%;
+    font-size: 18px;
+  }
+  
+  a {
+    text-decoration: none;
+    font-size: 22px;
+    color: black;
+  }
+  
+  button:hover, a:hover {
+    opacity: 0.7;
+  }
+  .about .about-content .left img {
+    height: 305px;
+    width: 302px;
+    object-fit: cover;
+    border-radius: 6px;
 }
