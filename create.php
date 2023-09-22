@@ -3,14 +3,15 @@
 require_once "config.php";
  
 // Define variables and initialize with empty values
-$name = $address = $salary = "";
-$name_err = $address_err = $salary_err = "";
+$name = $address = $salary = $employee_id = $reported_to= $date = "";
+
+
+$name_err = $address_err = $salary_err =$employee_id_err= $reported_to= "";
  
 // Processing form data when form is submitted
-if(isset($_POST["id"]) && !empty($_POST["id"])){
-    // Get hidden input value
-    $id = $_POST["id"];
-    
+if($_SERVER["REQUEST_METHOD"] == "POST"){
+
+   
     // Validate name
     $input_name = trim($_POST["name"]);
     if(empty($input_name)){
@@ -20,43 +21,70 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     } else{
         $name = $input_name;
     }
+    //validate employee_id
     
-    // Validate address address
+    $input_employee_id = trim($_POST["employee_id"]);
+    if(empty($input_name)){
+        $employee_id_err = "Please enter an employee code.";
+    } elseif(!filter_var($input_name, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>"/^[a-zA-Z\s]+$/")))){
+        $employee_id_err = "Please enter a valid code.";
+    } else{
+        $employee_id = $input_employee_id;
+    }
+     
+   $date = trim($_POST["date"]);
+    
+    
+    // Validate address
     $input_address = trim($_POST["address"]);
     if(empty($input_address)){
         $address_err = "Please enter an address.";     
     } else{
         $address = $input_address;
     }
+
     
-    // Validate salary
+    // Validate status
     $input_salary = trim($_POST["salary"]);
     if(empty($input_salary)){
-        $salary_err = "Please enter the Status amount.";     
+        $salary_err = "Please enter the salary amount.";     
     // } elseif(!ctype_digit($input_salary)){
     //     $salary_err = "Please enter a positive integer value.";
     } else{
         $salary = $input_salary;
     }
+
+    // reported to
+    $input_reported_to = trim($_POST["reported_to"]);
+    if(empty($input_name)){
+        $reported_to_err = "Please enter reporting manager.";
+    } elseif(!filter_var($input_name, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>"/^[a-zA-Z\s]+$/")))){
+        $reported_to_err = "Please enter a valid name.";
+    } else{
+        $reported_to = $input_reported_to;
+    }
     
     // Check input errors before inserting in database
     if(empty($name_err) && empty($address_err) && empty($salary_err)){
-        // Prepare an update statement
-        $sql = "UPDATE employees SET name=?, address=?, salary=? WHERE id=?";
+        // Prepare an insert statement
+
+         $sql = "INSERT INTO employees (name, address, salary , employee_id , reported_to , date) VALUES (?, ?, ? , ?, ? , ?)";
          
         if($stmt = mysqli_prepare($link, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "sssi", $param_name, $param_address, $param_salary, $param_id);
+            mysqli_stmt_bind_param($stmt, "ssssss", $param_name, $param_address, $param_salary ,$param_employee_id , $param_reported_to , $param_input_date );
             
             // Set parameters
             $param_name = $name;
             $param_address = $address;
             $param_salary = $salary;
-            $param_id = $id;
-            
+            $param_employee_id = $employee_id;
+            $param_reported_to = $reported_to;
+            $param_input_date = $date;
             // Attempt to execute the prepared statement
+            
             if(mysqli_stmt_execute($stmt)){
-                // Records updated successfully. Redirect to landing page
+                // Records created successfully. Redirect to landing page
                 header("location: index.php");
                 exit();
             } else{
@@ -70,55 +98,6 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     
     // Close connection
     mysqli_close($link);
-} else{
-    // Check existence of id parameter before processing further
-    if(isset($_GET["id"]) && !empty(trim($_GET["id"]))){
-        // Get URL parameter
-        $id =  trim($_GET["id"]);
-        
-        // Prepare a select statement
-        $sql = "SELECT * FROM employees WHERE id = ?";
-        if($stmt = mysqli_prepare($link, $sql)){
-            // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "i", $param_id);
-            
-            // Set parameters
-            $param_id = $id;
-            
-            // Attempt to execute the prepared statement
-            if(mysqli_stmt_execute($stmt)){
-                $result = mysqli_stmt_get_result($stmt);
-    
-                if(mysqli_num_rows($result) == 1){
-                    /* Fetch result row as an associative array. Since the result set
-                    contains only one row, we don't need to use while loop */
-                    $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-                    
-                    // Retrieve individual field value
-                    $name = $row["name"];
-                    $address = $row["address"];
-                    $salary = $row["salary"];
-                } else{
-                    // URL doesn't contain valid id. Redirect to error page
-                    header("location: error.php");
-                    exit();
-                }
-                
-            } else{
-                echo "Oops! Something went wrong. Please try again later.";
-            }
-        }
-        
-        // Close statement
-        mysqli_stmt_close($stmt);
-        
-        // Close connection
-        mysqli_close($link);
-    }  else{
-        // URL doesn't contain id parameter. Redirect to error page
-        header("location: error.php");
-        exit();
-    }
 }
 ?>
  
@@ -126,7 +105,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Update Record</title>
+    <title>Create Record</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         .wrapper{
@@ -140,16 +119,27 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <h2 class="mt-5">Update Record</h2>
-                    <p>Please edit the input values and submit to update the employee record.</p>
-                    <form action="<?php echo htmlspecialchars(basename($_SERVER['REQUEST_URI'])); ?>" method="post">
+                    <h2 class="mt-5">Create Record</h2>
+                    <p>Please fill this form and submit to add employee record to the database.</p>
+                    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                         <div class="form-group">
                             <label>Name</label>
                             <input type="text" name="name" class="form-control <?php echo (!empty($name_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $name; ?>">
                             <span class="invalid-feedback"><?php echo $name_err;?></span>
                         </div>
                         <div class="form-group">
-                            <label>Tasks</label>
+                            <label>Employee ID</label>
+                            <input type="text" name="employee_id" class="form-control <?php echo (!empty($employee_id_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $employee_id; ?>">
+                            <span class="invalid-feedback"><?php echo $employee_id_err;?></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" name="date" class="form-control" value="<?php echo $date; ?>">
+                            <!-- <span class="invalid-feedback"><?php //echo $employee_id_err;?></span> -->
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Task</label>
                             <textarea name="address" class="form-control <?php echo (!empty($address_err)) ? 'is-invalid' : ''; ?>"><?php echo $address; ?></textarea>
                             <span class="invalid-feedback"><?php echo $address_err;?></span>
                         </div>
@@ -158,7 +148,11 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
                             <input type="text" name="salary" class="form-control <?php echo (!empty($salary_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $salary; ?>">
                             <span class="invalid-feedback"><?php echo $salary_err;?></span>
                         </div>
-                        <input type="hidden" name="id" value="<?php echo $id; ?>"/>
+                        <div class="form-group">
+                            <label>Reporting Manager</label>
+                            <input type="text" name="reported_to" class="form-control <?php echo (!empty($reported_to_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $reported_to; ?>">
+                            <span class="invalid-feedback"><?php echo $reported_to_err;?></span>
+                        </div>
                         <input type="submit" class="btn btn-primary" value="Submit">
                         <a href="index.php" class="btn btn-secondary ml-2">Cancel</a>
                     </form>
