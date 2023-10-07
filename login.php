@@ -71,7 +71,7 @@ else{
 			<div class="user_card">
 				<div class="d-flex">
 					<div class="brand_logo_container">
-					<img src="assets/images/kent-logo.svg" class="brand_logo" alt="Logo">
+					<img src="assets/images/" class="brand_logo" alt="Logo">
 					</div>
 				</div>
 				<div class="d-flex form_container">
